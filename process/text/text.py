@@ -3,6 +3,18 @@ from datetime import datetime
 import sys
 import os
 
+
+REPLY_TEMPLATE = """\nReply | {author}: {message}{file_img}"""
+MESSAGE_TEMPLATE = """{time} | {author}: {message}{attachments}"""
+
+def help():
+    """
+    Returns help message
+    """
+    
+    return """Convert messages to one text file"""
+
+
 def process_messages(messages, args):
     """
     Processes a list of messages and generates a formatted output.
@@ -16,6 +28,7 @@ def process_messages(messages, args):
     Returns:
         None. The function writes the formatted output to a file in the specified output directory.
     """
+    messages = messages[::-1]
     
     output = []
 
@@ -24,12 +37,14 @@ def process_messages(messages, args):
     for i, message in enumerate(messages):
         print(f"Process message {message["id"]}")
         msg_time = datetime.fromisoformat(message["timestamp"].replace("Z", "+00:00"))
+        
         if prev_time:
             sub = msg_time - prev_time
+            
             if msg_time.day - prev_time.day != 0 or msg_time.day - prev_time.day < 0:
-                output.append(f"\n---\n**{msg_time.year}-{msg_time.month}-{msg_time.day}**\n")
+                output.append(f"\n====================================\n{msg_time.year}-{msg_time.month}-{msg_time.day}\n")
             elif sub.total_seconds() > 60*5:
-                output.append("\n")
+                output.append("\n\n")
             elif (msg_time - prev_time).total_seconds() > 60:
                 output.append("")
         
@@ -38,12 +53,19 @@ def process_messages(messages, args):
                 if msg["id"] == message["message_reference"]["message_id"]:
                     cont = msg["content"].replace("<", "").replace(">", "").replace("```", "")
                     
-                    output.append(f"<sub>Reply | {msg["author"]["global_name"] if msg["author"]["global_name"] else msg["author"]["username"]}: {cont if len(cont) <= 60 else cont[0:60]+"..."}{" :memo:" if message["attachments"] != [] else ""}</sub>")
+                    output.append(REPLY_TEMPLATE.format(
+                            author  =msg["author"]["global_name"] if msg["author"]["global_name"] else msg["author"]["username"],
+                            message =cont if len(cont) <= 60 else cont[0:60]+"...",
+                            file_img=" 📁" if message["attachments"] != [] else ""
+                        ))
                     break
         
-        output.append(f"""{msg_time.strftime("%Y-%m-%d %H:%M:%S")} | **{
-            message["author"]["global_name"] if message["author"]["global_name"] else message["author"]["username"]
-                            }**: {message["content"].replace("```", "\n```")} {"\n - "+"\n - ".join([f"[{att["filename"]}]({att["url"]}) ({att["width"]}x{att["height"]})" for att in message["attachments"]])+"\n" if message["attachments"] != [] else ""}""")
+        output.append(MESSAGE_TEMPLATE.format(
+                time        =msg_time.strftime("%Y-%m-%d %H:%M:%S"),
+                author      =message["author"]["global_name"] if message["author"]["global_name"] else message["author"]["username"],
+                message     =message["content"].replace("```", "\n```"),
+                attachments ="\n - "+"\n - ".join([f"{att["filename"]} ({att["url"]})" for att in message["attachments"]])+"\n" if message["attachments"] != [] else ""
+            ))
 
         prev_time = msg_time
 

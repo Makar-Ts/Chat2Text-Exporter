@@ -2,6 +2,16 @@ import json
 import sys
 import os
 
+
+
+def help():
+    """
+    Returns help message
+    """
+    
+    return """Convert messages to json and write them to multiple files"""
+
+
 def process_messages(messages, args):
     """
     Processes a list of messages and generates a formatted output.
