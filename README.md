@@ -20,7 +20,7 @@ DiscordChannel2Text-Exporter is a Python tool that allows you to export messages
 1. Clone this repository:
 
    ```bash
-   git clone https://github.com/your-username/DiscordChannel2Text-Exporter.git
+   git clone https://github.com/Makar-Ts/DiscordChannel2Text-Exporter.git
    cd DiscordChannel2Text-Exporter
    ```
 
