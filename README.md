@@ -52,6 +52,7 @@ python main.py <channel_id> <output_dir> <process_type> [options]
 - `-a`, `--after` - Fetch messages after this message ID.
 - `-t`, `--timeout` - Set a delay between API requests in milliseconds (default: 0).
 - `--all` - Fetch all messages from the channel (not recommended for large channels).
+- `-pr_args`, `--processer_args` - The processer's arguments.
 
 ### Examples:
 
@@ -63,16 +64,20 @@ This will fetch 100 messages from channel `1234567890`, that were posted before 
 
 
 ```bash
-python main.py 1234567890 ./exports/output json.multi --all true --timeout 1000
+python main.py 1234567890 ./exports/output json.multi --all --timeout 1000 -pr_args="-sbd"
 ```
 
-This will fetch all messages from channel `1234567890` with 1s timeout between requests, and process them using the `json.multi` processor.
+This will fetch all messages from channel `1234567890` with 1s timeout between requests, and process them using the `json.multi` processor, with files separated by date.
 
 
 
 ## Custom Processing
 
-The `process_type` refers to a Python module in the `process` directory. Each processor module should implement a `process_messages` function that handles the fetched messages according to your needs and help function that returns info about this processor. 
+The `process_type` refers to a Python module in the `process` directory. Each processor module should implement:
+ - `process_messages` - function that handles the fetched messages according to your needs.
+ - `help` - function that returns info about this processor. 
+ - `set_args` - function that configures processor arguments.
+ - `check_args` - function that checks arguments
 
 You can create custom processors by adding Python scripts to the `process` folder.
 

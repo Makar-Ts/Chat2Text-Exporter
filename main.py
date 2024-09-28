@@ -67,8 +67,14 @@ parser.add_argument(
 )
 parser.add_argument(
     '--all',
-    type=bool,
-    default=False,
+    action=argparse.BooleanOptionalAction,
+    help='NOT RECOMMENDED FOR USE!!! Get all messages in the channel'
+)
+parser.add_argument(
+    '-pr_args',
+    '--processer_args',
+    type=str,
+    default="",
     help='NOT RECOMMENDED FOR USE!!! Get all messages in the channel'
 )
 args = parser.parse_args()
@@ -109,6 +115,32 @@ if args.process_type not in process_types:
     print("Invalid process_type!")
     print(f"Available process types: {"\n - "+"\n - ".join(map(lambda x: x+"\n    "+importlib.import_module("process."+x, package=None).help(), process_types))}")
     exit(1)
+
+
+
+#=======================================================================
+#======================== Args set (process) ===========================
+#=======================================================================
+
+
+print(f"\nProcess module is {"process."+args.process_type}")
+
+process_module = importlib.import_module("process."+args.process_type, package=None)
+process_parcer = argparse.ArgumentParser(description=process_module.help())
+process_module.set_args(process_parcer)
+
+process_args = process_parcer.parse_args(args.processer_args.split())
+if not process_module.check_args(process_args):
+    print("Invalid arguments for process module!")
+    exit(1)
+    
+
+# Merge main arguments with processer arguments
+merged_args = vars(args)
+merged_args.update(vars(process_args))
+
+args = argparse.Namespace(**merged_args)
+
 
 
 
@@ -253,7 +285,4 @@ else:
 #=======================================================================
 
 
-print(f"\nProcess module is {"process."+args.process_type}")
-
-process_module = importlib.import_module("process."+args.process_type, package=None)
 process_module.process_messages(messages, args)

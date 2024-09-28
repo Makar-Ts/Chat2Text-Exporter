@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import argparse
 import sys
 import os
 
@@ -13,6 +14,24 @@ def help():
     """
     
     return """Convert messages to one MarkDown file"""
+
+
+import argparse
+
+def set_args(args_parcer:argparse.ArgumentParser):
+    """
+    Adds arguments to the ArgumentParser object.
+
+    Parameters:
+        args_parcer (argparse.ArgumentParser): The ArgumentParser object to which arguments will be added.
+
+    Returns:
+        None. This function modifies the ArgumentParser object in-place.
+    """
+    pass
+
+def check_args(args:argparse.Namespace):
+    return True
 
 
 def process_messages(messages, args):
